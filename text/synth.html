@@ -1,0 +1,167 @@
+<style>
+    h1 {
+        color: rgb(71, 14, 57);
+        font-size: large;
+        font-style: italic;
+    }
+
+    h2 {
+        color: #db7f60;
+        font-size: medium;
+        font-style: italic;
+    }
+
+    h3 {
+        color: rgb(35, 27, 57);
+        font-size:18px;
+        font-style: italic;
+    }
+    pn{
+        color:blue;
+    }
+    po{
+        color: blue;
+        font-size: 20px;
+        font-style:oblique;
+    }
+    pp{
+        color:grey;
+        font-size:20px;
+    }
+</style>
+<center>
+    <h1>vlsi logical synthesis</h1>
+</center>
+<h2>Syntheis flow</h2>
+<p>Synthesis is a complex task consisting of many phases and requires various inputs in order to produce a functionally
+    correct netlist. The following chapter presents the basic synthesis flow with Synopsys Fusion Compiler. It assumes
+    that you have a synthesizable and functionally correct HDL description available.</p>
+<h2>Synthesis Overview</h2>
+<p>Synthesis with Fusion Compiler include the following main tasks: reading in the design, setting constraints,
+    optimizing the design, analyzing the results and saving the design database. These tasks are described below</p>
+<h2>Reading in the design</h2>
+<p>The first task in synthesis is to read the design into Fusion Compiler memory. Reading in an HDL design description
+consist of two tasks: analyzing and elaborating the description.<br>The analysis command (analyze) performs the
+following tasks:<br>
+Reads the HDL source and checks it for syntactical errors<br>
+Creates HDL library objects in an HDL-independent intermediate format and saves these intermediate files in a
+specified location (./HDL_LIBRARIES/WORK/ in this tutorial).<br>
+If the analysis reports errors, they must be fixed, and the design reanalyzed before continuing.<br>
+The elaboration command (elaborate) does e.g. the following:<br>
+Translates the design into a technology-independent design (GTECH) from the intermediate files produced during
+analysis<br>
+
+Allows changing of parameter values (generics) defined in the source code<br>
+
+Replaces the HDL arithmetic operators in the code with DesignWare components<br>
+
+Automatically executes the link command, which resolves design references<br><br>
+
+<pn>Note: check the elaboration reports carefully to see the number and the type of memory elements Fusion Compiler
+thinks it should infer and whether you agree with it or not. Badly modeled hardware description may result as
+excessive or wrong type of memory elements inferred.</pn><br><br>
+
+At this point, if the elaboration completed successfully, the design is represented in GTECH format, which is an
+internal, equation-based, technology-independent design format.<br>
+</p>
+<h2>Constraining the design</h2>
+<p>The next task is to set the design constraints.<br> Constraints are the instructions that the designer gives to Fusion
+    Compiler. <br>They define what the synthesis tool can or cannot do with the design or how the tool behaves. Usually this
+    information can be derived from the various design specifications (e.g. from timing specification).<br>
+
+    There are basically two types of design constraints
+</p>
+<h3>Design Rule Constraints</h3>
+<p>
+    Design rules constraints are implicit constraints which means that they are defined by the ASIC vendor in technology
+    library. By specifying the technology library that Fusion Compiler should use, you also specify all design rules in
+    that library. You cannot discard or override these rules.
+</p>
+<h3>Optimization Constraints</h3>
+<p>Optimization constraints are explicit constraints (set by the designer). They describe the design goals (area,
+    timing, and so on) the designer has set for the design and work as instructions for the Fusion Compiler how to
+    perform synthesis.</p>
+<h3>Design rule constraints comprise:</h3>
+<p>
+    <p1>*Maximum transition time</p1><br>
+    <p2>*Longest time allowed for a driving pin of a net to change its logic value</p2><br>
+    <p3>*Maximum fanout</p3><br>
+    <p4>*Maximum fanout for a driving pin</p4><br>
+    <p5>*Maximum (and minimum) capacitance</p5><br>
+    <p6>*The maximum (and minimum) total capacitive load that an output pin can drive. The total capacitance comprises
+        of load pin capacitance and interconnect capacitances.</p6><br>
+</p>
+<h2>Cell degradation</h2>
+<p>Some technology libraries contain cell degradation tables. The cell degradation tables list the maximum capacitance that can be driven by a cell as a function of the transition times at the inputs of the cell.</p>
+<br>
+<po>The optimization constraints comprise timing and maximum area constraints. The most common timing constraints include</po>
+<h2>System clock definition and clock delays</h2>
+<p>Clock constraints are the most important constraints in your ASIC design. The clock signal is the synchronization signal that controls the operation of the system. The clock signal also defines the timing requirements for all paths in the design. Most of the other timing constraints are related to the clock signal.</p><br>
+<h2>Multicycle paths</h2>
+<p>A multicycle path is an exception to the default single cycle timing requirement of paths. That is, on a multicycle path the signal requires more than a single clock cycle to propagate from the path startpoint to the path endpoint.</p>
+<h2>Input and output delays</h2>
+<p>Input and output delays constrain external path delays at the boundaries of a design. Input delay is used to model the path delay from external inputs to the first registers in the design. Output delay constrain the path from the last register to the outputs of the design.</p>
+<h2>Minimum and maximum path delays</h2>
+<p>Minimum and maximum path delays allow constraining paths individually and setting specific timing constraints on those paths.</p>
+<p>Input transition and output load capacitance</p>
+<p>These constraints can be used to constrain the input slew rate and output capacitance on input and output pins.</p>
+<h2>False paths</h2>
+<p>A false path is a path that cannot propagate a signal. For example, a path that is not activated by any combination of inputs is a false path.</p>
+<pn>Note : Fusion Compiler tries to meet both design rule and optimization constraints but design rule constraints always have precedence over the optimization constraints. This means that Design Compiler can violate optimization constraints if necessary to avoid violating design rule constraints.</pn>
+<h2>Defining Design Environment:</h2>
+<p>You also need to describe the environment in which the design is supposed to operate. The design environment description includes</p>
+<h3>Defining Operating Conditions</h3>
+<p>The operating conditions considers the variations in process, voltage, and temperature (PVT) ranges a design is expected to encounter. These variations are taken into consideration with operating condition specifications in the technology library. The cell and wire delays are scaled according to these conditions.</p>
+<h3>Modeling Wire Loads</h3>
+<p>Wire load models are used to estimate the effect of interconnect nets on capacitance, resistance, and area before real data is obtained from the actual layout. These models are statistical models and they estimate the wire length as a function of net's fanout.</p>
+<h2>Optimizing the Design</h2>
+<p>The following section presents the behavior of Fusion Compiler optimization step</p>
+<p>The optimization step translates the HDL description into gate-level netlist using the cells available in the technology library</p>
+<p>The optimization is done in several phases. In each optimization phase different optimization techniques are applied according to the design constraints. The following is somewhat simplified description of optimizations performed during synthesis.</p>
+<po>Design Compiler performs optimizations on three levels:</po><br>
+<pp>===> Architectural-level<br>===> logic-level<br>===> gate-level</pp>
+<h2>Architectural Optimizations</h2>
+<pn>Architectural optimizations are high-level optimizations which are performed on the HDL description level. These optimizations include tasks such as</pn>
+<h3>Arithmetic Optimizations:</h2>
+<p>Arithmetic optimization uses the rules of algebra to improve the implementation of the design. That is, Fusion Compiler may rearrange the operations in arithmetic expressions according to the constraints to minimize the area or timing</p>
+<h3>Resource Sharing:</h2>
+<p>Resource sharing tries to reduce the amount of hardware by sharing hardware resources with multiple operators in your HDL description. For example, single adder component may be shared with multiple addition operators in the HDL code. Without resource sharing each operator in your code will result as a separate HW component in the final circuitry.</p>
+<h3>Selecting DesignWare Implementations:</h2>
+<p>Selecting a DesignWare implementation means that the implementation selection of a particular resource is left to the Fusion Compiler. For example, the Basic IP Library contains two implementations (ripple and carry-lookahead) for the +-operator (the DesignWare Foundation Library provides more implementations for the '+' and other operators). When selecting DesignWare implementation, Fusion Compiler considers all available implementations and makes it selection according to your constraints.
+
+    At this point, the design is represented by GTECH library parts (i.e. generic, technology-independent netlist).
+    </p>
+<h2>Logic-level Optimizations</h2>
+<p>Logic-level optimizations are performed on GTECH netlist and consists of two processes: structuring and flattening.</p>
+<h3>Structuring:</h3>
+<p>Structuring evaluates the design equations represented by the GTECH netlist and tries by using Boolean algebra to factor out common subexpressions in these equations. The subexpressions that have been identified and factored out can then be shared between the equations.  </p>
+<br>
+<pn>Before structuring</pn>
+<p>P = ax + ay + c <br>Q = x + y + z
+    </p>
+    <pn>After structuring</pn>
+    <p> P = aI + c<br>Q = I + z
+    </p>
+    <pn>common subexpression:</pn>
+    <p>I = x + y</p>
+    <p>Structuring is usually recommended for designs with regular structured logic</p>
+<h3>Flattening</h3>
+<p>Flattening tries to convert logic into two-level  </p>
+<pp>sop ===> sum of products<br>pos ===> product of sums</pp>
+<p>Flattening produces fast logic (by minimizing the levels of logic between the inputs and outputs) at the expense of the area increase. Flattening is recommended for designs containing unstructured or random logic.</p>
+<h2>Gate-level Optimizations</h2>
+<p>Gate-level optimizations work on the technology-independent netlist and maps it to the library cells to produce a technology-specific gate-level netlist.</p>
+<pn>Gate-level optimizations include the following processes:</pn>
+<h3>Mapping:</h3>
+<p>This process maps the cells from technology-independent netlist (GTECH) to the cells in library specified by the target_library variable.</p>
+<h3>Delay Optimization:</h3>
+<p>Delay optimization fixes the timing violations introduced by mapping phase.</p>
+<h3>Design Rule Fixing:</h3>
+<p>Design rule fixing fixes the design rule violations in the design. Basically this means that Design Compiler inserts buffers or resizes existing cells. Note that design rule fixing phase is allowed to break timing constraints.</p>
+<h3>Area Optimization:</h3>
+<p>Area optimization is the last step that Design Compiler performs on the design. During this phase, only those optimizations that don't break design rules or timing constraints are allowed.</p>
+<pn>Note : the optimizations Design Compiler performs (or does not perform) depend on the constraints you set. Therefore, setting realistic constraints is one of the most important synthesis tasks.</pn>
+<h2>Generating reports</h2>
+<p>various reports like<br>1)congestion <br>2)global timing <br>3)type of standard cells used from design library<br>4)Area<br>5)power <br>6)Utilization</p>
+<h2>saving the design</h2>
+<p>The final task in synthesis with Fusion Compiler is to save the synthesized design. The design can be saved in many formats but you should save for example the gate-level netlist (usually in Verilog) and/or the design database. Remember that by default, Fusion Compiler does not save anything when exiting.</p>
